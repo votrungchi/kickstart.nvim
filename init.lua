@@ -455,10 +455,24 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [/] in Open Files' })
 
+      vim.keymap.set('n', '<leader>sc', function()
+        builtin.live_grep {
+          glob_pattern = { '*.c', '*.h' },
+          prompt_title = 'Live Grep C/H',
+        }
+      end, { desc = '[S]earch by [G]rep (C/H)' })
+
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      vim.keymap.set('n', '<leader>yp', function()
+        vim.fn.setreg('+', vim.fn.expand '%:p')
+      end, { desc = 'Copy file absolute path' })
+      vim.keymap.set('n', '<leader>yr', function()
+        vim.fn.setreg('+', vim.fn.expand '%')
+      end, { desc = 'Copy file relative path' })
     end,
   },
 
