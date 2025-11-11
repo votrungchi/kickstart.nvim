@@ -404,19 +404,28 @@ require('lazy').setup({
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
-        -- You can put your default mappings / updates / etc. in here
-        --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
-        extensions = {
-          ['ui-select'] = {
-            require('telescope.themes').get_dropdown(),
+        defaults = {
+          -- Keep filenames visible by truncating long left-side paths
+          path_display = { 'truncate' }, -- options include 'truncate', 'smart', 'filename_first' in recent versions [web:39]
+          layout_strategy = 'horizontal', -- gives wider results column than vertical [web:38]
+          layout_config = {
+            width = 0.95,
+            height = 0.90,
+            prompt_position = 'bottom',
+            horizontal = {
+              preview_width = 0.55,
+              results_width = 0.45,
+            },
           },
+          sorting_strategy = 'ascending',
+        },
+        pickers = {
+          live_grep = {
+            path_display = { 'truncate' }, -- enforce truncation for this picker [web:39]
+          },
+        },
+        extensions = {
+          ['ui-select'] = require('telescope.themes').get_dropdown(),
         },
       }
 

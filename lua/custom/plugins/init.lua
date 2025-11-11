@@ -25,7 +25,26 @@ return {
       vim.cmd.colorscheme 'gruvbox'
     end,
   },
-  { 'github/copilot.vim' },
+  {
+    'github/copilot.vim',
+    event = 'InsertEnter',
+  },
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    cmd = { 'CopilotChat', 'CopilotChatOpen', 'CopilotChatToggle' },
+    config = function()
+      require('CopilotChat').setup {
+        show_help = false, -- hide inline help if desired
+        headers = {
+          user = '👷Chi Vo',
+          assistant = '🤡Copilot',
+        },
+      }
+    end,
+    vim.keymap.set('n', '<leader>cc', function()
+      require('CopilotChat').toggle()
+    end, { desc = 'Toggle CopilotChat' }),
+  },
   {
     'f-person/git-blame.nvim',
     opts = {
@@ -35,33 +54,65 @@ return {
       virtual_text_column = 80,
     },
   },
+  -- lua/plugins/mini-map.lua
   {
-    'akinsho/toggleterm.nvim',
-    version = '*',
+    'nvim-mini/mini.map',
+    version = false, -- use latest (main). For pinned releases, set version = '*'
     config = function()
-      require('toggleterm').setup {}
-      local Terminal = require('toggleterm.terminal').Terminal
-      local cmd = Terminal:new { cmd = 'cmd.exe', direction = 'float', hidden = true }
-      local gitbash = Terminal:new {
-        cmd = '"C:/Program Files/Git/bin/bash.exe"',
-        direction = 'float',
-        hidden = true,
+      local map = require 'mini.map'
+
+      map.setup {
+        -- Show search, diagnostics, and Git hunks if available
+        integrations = {
+          map.gen_integration.builtin_search(),
+          map.gen_integration.diagnostic(),
+          -- Enable one or both of the following if you use them:
+          -- require('mini.diff') and its integration
+          map.gen_integration.diff(), -- needs mini.diff enabled
+          -- Gitsigns integration (plugin optional)
+          map.gen_integration.gitsigns(),
+        },
+        symbols = {
+          -- keep defaults; or choose different resolution with:
+          encode = map.gen_encode_symbols.dot '3x2',
+          scroll_line = '█',
+          scroll_view = '┃',
+        },
+        window = {
+          side = 'right',
+          width = 25,
+          winblend = 25,
+          focusable = true,
+          show_integration_count = true,
+          zindex = 10,
+        },
       }
-      vim.keymap.set('n', '<leader>tc', function()
-        cmd:toggle()
-      end, { desc = 'Toggle CMD Terminal' })
-      vim.keymap.set('n', '<leader>tg', function()
-        gitbash:toggle()
-      end, { desc = 'Toggle Git Bash Terminal' })
+
+      -- Keymaps similar to MiniMap’s help
+      vim.keymap.set('n', '<leader>mm', map.toggle, { desc = 'MiniMap toggle' })
+      vim.keymap.set('n', '<leader>mo', map.open, { desc = 'MiniMap open' })
+      vim.keymap.set('n', '<leader>mc', map.close, { desc = 'MiniMap close' })
+      vim.keymap.set('n', '<leader>mr', map.refresh, { desc = 'MiniMap refresh' })
+      vim.keymap.set('n', '<leader>ms', map.toggle_side, { desc = 'MiniMap side' })
+      vim.keymap.set('n', '<leader>mf', map.toggle_focus, { desc = 'MiniMap focus' })
+
+      -- Optional: auto-open on start (Kickstart starts in a real buffer)
+      vim.api.nvim_create_autocmd('VimEnter', {
+        callback = function()
+          -- Skip when no file/buffer (like a dashboard); adjust to your setup
+          if vim.bo.buftype == '' then
+            map.open()
+          end
+        end,
+      })
     end,
   },
   {
-    'Isrothy/neominimap.nvim',
-    version = 'v3.*',
-    lazy = false,
-    keys = { { '<leader>nm', '<cmd>Neominimap Toggle<cr>', desc = 'Toggle minimap' } },
-    init = function()
-      vim.g.neominimap = { auto_enable = true }
-    end,
+    'kdheepak/lazygit.nvim',
+    cmd = { 'LazyGit', 'LazyGitConfig', 'LazyGitCurrentFile', 'LazyGitFilter', 'LazyGitFilterCurrentFile' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    keys = {
+      { '<leader>lg', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
+    },
   },
 }
